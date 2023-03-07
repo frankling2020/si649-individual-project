@@ -10,6 +10,7 @@ def load_data():
     states = alt.topo_feature(data.us_10m.url, 'states')
     cost_disability = pd.read_csv('https://raw.githubusercontent.com/frankling2020/UMSI-Projects/main/cost_disability.csv')
     health_conditions = pd.read_csv('disease.csv')
+    health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
     return states, cost_disability, health_conditions
 
 
@@ -22,8 +23,6 @@ state_names = cost_disability['LocationDesc'].copy()
 state_ids = cost_disability['id'].copy()
 state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
 state_names = sorted(state_names)
-
-health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
 
 
 # Visualization 1: interactive
