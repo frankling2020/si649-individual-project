@@ -149,22 +149,8 @@ st.sidebar.write(
 
 
 
-tab1, tab2 = st.tabs(['Barriers of Health Care', 'Health Conditions'])
+tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 
-with tab2:
-    tab2.write(
-        """
-        Eventually, the patient's adult daughter told Lagu
-        that she hadn't been able to find a specialist who would see a patient in a
-        wheelchair. Incredulous, Lagu started making calls. "I could not find that
-        kind of doctor within 100 miles of her house who would see her," she
-        says, "unless she came in an ambulance and was transferred to an
-        exam table by EMS—which would have cost her family more than
-        $1,000 out of pocket."
-        """
-    )
-    st.altair_chart(viz1, use_container_width=True)
-    
 with tab1:
     tab1.write(
         """
@@ -179,3 +165,17 @@ with tab1:
         """
     )
     st.altair_chart(viz2, use_container_width=True)
+
+with tab2:
+    tab2.write(
+        """
+        Eventually, the patient's adult daughter told Lagu
+        that she hadn't been able to find a specialist who would see a patient in a
+        wheelchair. Incredulous, Lagu started making calls. "I could not find that
+        kind of doctor within 100 miles of her house who would see her," she
+        says, "unless she came in an ambulance and was transferred to an
+        exam table by EMS—which would have cost her family more than
+        $1,000 out of pocket."
+        """
+    )
+    st.altair_chart(viz1, use_container_width=True)
