@@ -1,0 +1,53 @@
+LocationAbbr,LocationDesc,cost_rate,disability_rate,id
+AL,Alabama,0.273,0.311,1
+AK,Alaska,0.171,0.211,2
+AZ,Arizona,0.194,0.243,4
+AR,Arkansas,0.261,0.313,5
+CA,California,0.167,0.227,6
+CO,Colorado,0.206,0.195,8
+CT,Connecticut,0.167,0.208,9
+DE,Delaware,0.217,0.238,10
+DC,District of Columbia,0.132,0.222,11
+FL,Florida,0.316,0.257,12
+GA,Georgia,0.289,0.248,13
+HI,Hawaii,0.144,0.187,15
+ID,Idaho,0.227,0.282,16
+IL,Illinois,0.199,0.226,17
+IN,Indiana,0.215,0.269,18
+IA,Iowa,0.156,0.217,19
+KS,Kansas,0.221,0.257,20
+KY,Kentucky,0.167,0.329,21
+LA,Louisiana,0.216,0.326,22
+ME,Maine,0.189,0.27,23
+MD,Maryland,0.185,0.197,24
+MA,Massachusetts,0.186,0.226,25
+MI,Michigan,0.169,0.26,26
+MN,Minnesota,0.173,0.199,27
+MS,Mississippi,0.258,0.327,28
+MO,Missouri,0.24,0.284,29
+MT,Montana,0.192,0.262,30
+NE,Nebraska,0.219,0.203,31
+NV,Nevada,0.181,0.284,32
+NH,New Hampshire,0.195,0.212,33
+NJ,New Jersey,0.245,0.209,34
+NM,New Mexico,0.174,0.263,35
+NY,New York,0.187,0.215,36
+NC,North Carolina,0.241,0.259,37
+ND,North Dakota,0.199,0.242,38
+OH,Ohio,0.195,0.254,39
+OK,Oklahoma,0.285,0.334,40
+OR,Oregon,0.205,0.259,41
+PA,Pennsylvania,0.163,0.255,42
+RI,Rhode Island,0.17,0.234,44
+SC,South Carolina,0.247,0.309,45
+SD,South Dakota,0.189,0.235,46
+TN,Tennessee,0.245,0.291,47
+TX,Texas,0.264,0.259,48
+UT,Utah,0.222,0.226,49
+VT,Vermont,0.185,0.208,50
+VA,Virginia,0.213,0.218,51
+WA,Washington,0.196,0.216,53
+WV,West Virginia,0.204,0.323,54
+WI,Wisconsin,0.175,0.212,55
+WY,Wyoming,0.297,0.235,56
+PR,Puerto Rico,0.147,0.402,72

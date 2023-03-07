@@ -1,0 +1,15 @@
+﻿disease,disability,value,ci1,ci2
+Depression,1,0.418,0.41,0.427
+Depression,0,0.123,0.121,0.126
+Arithritis,1,0.38,0.372,0.387
+Arithritis,0,0.161,0.158,0.164
+Diabetes,1,0.162,0.157,0.167
+Diabetes,0,0.075,0.073,0.077
+Stroke,1,0.061,0.058,0.064
+Stroke,0,0.014,0.013,0.015
+Cancer,1,0.081,0.077,0.084
+Cancer,0,0.047,0.046,0.049
+High Blood Pressure,1,0.405,0.399,0.411
+High Blood Pressure,0,0.259,0.257,0.262
+High Cholesterol,1,0.365,0.359,0.371
+High Cholesterol,0,0.262,0.258,0.265
