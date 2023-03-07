@@ -1,20 +1,8 @@
 import altair as alt
 from vega_datasets import data
 import pandas as pd
-import numpy as np
 
 import streamlit as st
-from IPython.display import display, HTML
-
-display(HTML("""
-<style>
-    form.vega-bindings {
-    position: "absolute";
-    left: 65px;
-    top: -4px;
-    }
-</style>
-"""))
 
 # Visualization 1: interactive
 ## Load data
