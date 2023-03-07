@@ -11,7 +11,7 @@ def load_data():
     states = alt.topo_feature(data.us_10m.url, 'states')
     cost_disability = pd.read_csv('cost_disability.csv')
     health_conditions = pd.read_csv('disease.csv')
-    health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
+    health_conditions['disability'] = health_conditions['disability'].map({1: "Disabled", 0: "Non-disabled"})
     
     ## Preprocessing
     ## State and ID mapping
@@ -19,13 +19,14 @@ def load_data():
     state_ids = cost_disability['id'].copy()
     state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
     state_names = sorted(state_names)
-    cost_rate_max = cost_disability['cost_rate'].max()
+    cost_rate_max = max(cost_disability['cost_rate'])
+    cost_rate_min = min(cost_disability['cost_rate'])
     
-    return states, cost_disability, health_conditions, state_names, state_ids, cost_rate_max
+    return states, cost_disability, health_conditions, state_names, state_ids, cost_rate_max, cost_rate_min
 
 
 ## Load data
-states, cost_disability, health_conditions, state_names, state_ids, cost_rate_max = load_data()
+states, cost_disability, health_conditions, state_names, state_ids, cost_rate_max, cost_rate_min = load_data()
 
 
 ## Sidebar
@@ -54,7 +55,8 @@ def viz1():
     viz_sel = alt.selection_single(
         fields = ['id'], 
         empty = 'all',
-        on = 'dblclick',
+        on = 'mouseover',
+        clear = 'mouseout',
         bind = state_selector,
     )
 
@@ -86,7 +88,8 @@ def viz1():
 
     fig2_base = alt.Chart(cost_disability).encode(
         x = alt.X('cost_rate:Q', axis=alt.Axis(title='Rate')),
-        y = alt.Y('LocationDesc:N', sort=alt.EncodingSortField(field='cost_rate', op='sum', order='descending')),
+        y = alt.Y('LocationDesc:N', title=None,
+            sort=alt.EncodingSortField(field='cost_rate', op='sum', order='descending')),
     ).transform_filter(
         alt.datum.cost_rate >= slider
     )
@@ -96,7 +99,8 @@ def viz1():
         tooltip=['LocationDesc:N', 'disability_rate:Q', 'cost_rate:Q'],
     ).properties(
         title = alt.TitleParams(
-            text = ['Could not see a doctor due to cost in the past 12 months', 'among adults 18 years of age or older'],
+            text = ['Could not see a doctor due to cost in the past 12 months', 
+                'among adults 18 years of age or older in each state'],
             fontSize = 16,
             anchor = 'middle',
         ),
@@ -121,32 +125,33 @@ def viz1():
 def viz2():
     ## Layered bar chart
     base_bar = alt.Chart(health_conditions).encode(
-        y = alt.Y('disability:N', title=None),
+        x = alt.X('disability:N', title=None, axis=None),
     )
 
     bars = base_bar.mark_bar().encode(
-        x = alt.X('value:Q'),
-        color = alt.Color('disability:N'),
+        y = alt.Y('value:Q'),
+        color = alt.Color('disability:N', legend=alt.Legend(title='Disability Status')),
     )
 
     confidence_interval = base_bar.mark_errorbar(extent='ci', color='darkred').encode(
-        x=alt.X('ci1:Q', title='Rate'),
-        x2='ci2:Q',
+        y=alt.Y('ci1:Q', title='Rate'),
+        y2=alt.Y2('ci2:Q', title=None),
     )
 
-    annotation = base_bar.mark_text(align='left', dx=10).encode(
-        x = alt.X('value:Q'),
-        text = alt.Text('value:Q', format='.1%')
+    annotation = base_bar.mark_text(align='center', dy=-12, size=9, color='darkred').encode(
+        y = alt.Y('value:Q'),
+        text = alt.Text('value:Q', format='.1%'),
     )
 
     viz2 = (bars + confidence_interval + annotation).facet(
-        row = alt.Row(
+        column = alt.Column(
             'disease:N', 
-            header=alt.Header(title='Health Conditions', labelOrient='top', titleFontSize=13),
+            header = alt.Header(title=None, labelOrient='top', titleFontSize=13),
             sort = alt.EncodingSortField(field='value', op='max', order='descending')),
+        spacing = 30,
     ).properties(
         title = alt.TitleParams(
-            "Health Conditions among Adults w/o Disability in US in 2020",
+            "Health Conditions among Adults related to Disability in US in 2020",
             fontSize = 20,
             fontWeight = 'bold',
         )
@@ -192,6 +197,6 @@ with tab2:
         $1,000 out of pocket."
         """
     )
-    slider = tab2.slider('Select Lower Bound of Cost Rate', 0.0, cost_rate_max, 0.01)
+    slider = tab2.slider('Select Lower Bound of Cost Rate', cost_rate_min, cost_rate_max, cost_rate_min, 0.01)
     viz1 = viz1()
     st.altair_chart(viz1, use_container_width=True)
