@@ -4,17 +4,29 @@ import pandas as pd
 
 import streamlit as st
 
-# Visualization 1: interactive
 ## Load data
-states = alt.topo_feature(data.us_10m.url, 'states')
-cost_disability = pd.read_csv('https://raw.githubusercontent.com/frankling2020/UMSI-Projects/main/cost_disability.csv')
+@st.cache
+def load_data():
+    states = alt.topo_feature(data.us_10m.url, 'states')
+    cost_disability = pd.read_csv('https://raw.githubusercontent.com/frankling2020/UMSI-Projects/main/cost_disability.csv')
+    health_conditions = pd.read_csv('disease.csv')
+    return states, cost_disability, health_conditions
 
+
+## Load data
+states, cost_disability, health_conditions = load_data()
+
+## Preprocessing
 ## State and ID mapping
 state_names = cost_disability['LocationDesc'].copy()
 state_ids = cost_disability['id'].copy()
 state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
 state_names = sorted(state_names)
 
+health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
+
+
+# Visualization 1: interactive
 ## Select state
 viz_sel = alt.selection_single(
     fields = ['id'], 
@@ -84,10 +96,6 @@ viz1 = (fig1 & (fig2 + text)).add_selection(viz_sel).properties(
 
 
 # Visualization 2: interactive
-## Load data
-health_conditions = pd.read_csv('disease.csv')
-health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
-
 ## Layered bar chart
 base_bar = alt.Chart(health_conditions).encode(
     y = alt.Y('disability:N', title=None),
