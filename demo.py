@@ -197,6 +197,7 @@ with tab2:
         $1,000 out of pocket."
         """
     )
-    slider = tab2.slider('Select Lower Bound of Cost Rate', cost_rate_min, cost_rate_max, cost_rate_min, 0.01)
+    slider = tab2.slider('Select Lower Bound of Cost Rate', 
+        cost_rate_min, cost_rate_max, (cost_rate_min + cost_rate_max)/2, 0.01)
     viz1 = viz1()
     st.altair_chart(viz1, use_container_width=True)
