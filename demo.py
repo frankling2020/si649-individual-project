@@ -83,7 +83,7 @@ fig2 = fig2_base.mark_bar().encode(
 
 text = fig2.mark_text(baseline='middle', dx=20, color='darkred').encode(
     text = alt.condition(viz_sel, alt.Text('cost_rate:Q', format='.1%'), alt.value(' ')),
-    opacity = alt.condition(~viz_sel, alt.value(1.0), alt.value(0)),
+    opacity = alt.condition(viz_sel, alt.value(1.0), alt.value(0)),
 )
 
 viz1 = (fig1 & (fig2 + text)).add_selection(viz_sel).properties(
