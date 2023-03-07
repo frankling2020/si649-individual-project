@@ -7,129 +7,28 @@ import streamlit as st
 ## Load data
 @st.cache
 def load_data():
+    ## Load data
     states = alt.topo_feature(data.us_10m.url, 'states')
     cost_disability = pd.read_csv('cost_disability.csv')
     health_conditions = pd.read_csv('disease.csv')
     health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
-    return states, cost_disability, health_conditions
+    
+    ## Preprocessing
+    ## State and ID mapping
+    state_names = cost_disability['LocationDesc'].copy()
+    state_ids = cost_disability['id'].copy()
+    state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
+    state_names = sorted(state_names)
+    cost_rate_max = cost_disability['cost_rate'].max()
+    
+    return states, cost_disability, health_conditions, state_names, state_ids, cost_rate_max
 
 
 ## Load data
-states, cost_disability, health_conditions = load_data()
-
-## Preprocessing
-## State and ID mapping
-state_names = cost_disability['LocationDesc'].copy()
-state_ids = cost_disability['id'].copy()
-state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
-state_names = sorted(state_names)
+states, cost_disability, health_conditions, state_names, state_ids, cost_rate_max = load_data()
 
 
-# Visualization 1: interactive
-## Select state
-viz_sel = alt.selection_single(
-    fields = ['id'], 
-    empty = 'all',
-    on = 'dblclick',
-    bind = alt.binding_select(
-        options = [None] + state_ids,
-        labels = ['All'] + state_names,
-        name = 'Select State'
-    )
-)
-
-## Base map
-fig1_base = alt.Chart(states).mark_geoshape(
-    stroke='white'
-).project(
-    type = 'albersUsa',
-).transform_lookup(
-    lookup='id',
-    from_=alt.LookupData(cost_disability, 'id', ['LocationDesc', 'disability_rate', 'cost_rate'])
-)
-
-## Layered map
-fig1 = fig1_base.encode(
-    color = alt.Color(
-        'disability_rate:Q',
-        bin=alt.BinParams(maxbins=5),
-        title='Disability Rate'
-    ),
-    opacity = alt.condition(viz_sel , alt.value(1.0), alt.value(0.2)),
-    tooltip=['LocationDesc:N', 'disability_rate:Q', 'cost_rate:Q'],
-).properties(
-    title = alt.TitleParams(
-        text = 'Disability status among adults 18 years of age or older in each state',
-        fontSize = 16,
-    ),
-)
-
-fig2_base = alt.Chart(cost_disability).encode(
-    x = alt.X('cost_rate:Q', axis=alt.Axis(title='Rate')),
-    y = alt.Y('LocationDesc:N', sort=alt.EncodingSortField(field='cost_rate', op='sum', order='descending')),
-)    
-    
-fig2 = fig2_base.mark_bar().encode(
-    opacity = alt.condition(viz_sel, alt.value(1.0), alt.value(0.2)),
-    tooltip=['LocationDesc:N', 'disability_rate:Q', 'cost_rate:Q'],
-).properties(
-    title = alt.TitleParams(
-        text = ['Could not see a doctor due to cost in the past 12 months', 'among adults 18 years of age or older'],
-        fontSize = 16,
-        anchor = 'middle',
-    ),
-)
-
-text = fig2.mark_text(baseline='middle', dx=20, color='darkred').encode(
-    text = alt.condition(viz_sel, alt.Text('cost_rate:Q', format='.1%'), alt.value(' ')),
-    opacity = alt.condition(viz_sel, alt.value(1.0), alt.value(0)),
-)
-
-viz1 = (fig1 & (fig2 + text)).add_selection(viz_sel).properties(
-    title = {
-        'text': 'Disability Rate and Expenditure in US in 2020', 
-        'fontSize': 20, 
-        'fontWeight': 'bold',
-    },
-).resolve_scale(x='shared')
-
-
-# Visualization 2: interactive
-## Layered bar chart
-base_bar = alt.Chart(health_conditions).encode(
-    y = alt.Y('disability:N', title=None),
-)
-
-bars = base_bar.mark_bar().encode(
-    x = alt.X('value:Q'),
-    color = alt.Color('disability:N'),
-)
-
-confidence_interval = base_bar.mark_errorbar(extent='ci', color='darkred').encode(
-    x=alt.X('ci1:Q', title='Rate'),
-    x2='ci2:Q',
-)
-
-annotation = base_bar.mark_text(align='left', dx=10).encode(
-    x = alt.X('value:Q'),
-    text = alt.Text('value:Q', format='.1%')
-)
-
-viz2 = (bars + confidence_interval + annotation).facet(
-    row = alt.Row(
-        'disease:N', 
-        header=alt.Header(title='Health Conditions', labelOrient='top', titleFontSize=13),
-        sort = alt.EncodingSortField(field='value', op='max', order='descending')),
-).properties(
-    title = alt.TitleParams(
-        "Health Conditions among Adults w/o Disability in US in 2020",
-        fontSize = 20,
-        fontWeight = 'bold',
-    )
-)
-
-
-# Streamlit
+## Sidebar
 st.sidebar.title('Health Conditions of Disability and Barriers of Health Care in US in 2020')
 st.sidebar.write(
     """
@@ -143,7 +42,119 @@ st.sidebar.write(
 )
 
 
+# Visualization 1: interactive
+def viz1():
+    ## Select state
+    state_selector = alt.binding_select(
+        options = [None] + state_ids,
+        labels = ['All'] + state_names,
+        name = 'Select State'
+    )
 
+    viz_sel = alt.selection_single(
+        fields = ['id'], 
+        empty = 'all',
+        on = 'dblclick',
+        bind = state_selector,
+    )
+
+    ## Base map
+    fig1_base = alt.Chart(states).mark_geoshape(
+        stroke='white'
+    ).project(
+        type = 'albersUsa',
+    ).transform_lookup(
+        lookup='id',
+        from_=alt.LookupData(cost_disability, 'id', ['LocationDesc', 'disability_rate', 'cost_rate'])
+    )
+
+    op_condition = alt.condition(viz_sel, alt.value(1.0), alt.value(0.2))
+    color_bins = alt.Color('disability_rate:Q', bin=alt.BinParams(maxbins=5), title='Disability Rate')
+    color_condition = alt.condition(alt.datum.cost_rate >= slider, color_bins, alt.value('lightgray'))
+
+    ## Layered map
+    fig1 = fig1_base.encode(
+        color = color_condition,
+        opacity = op_condition,
+        tooltip=['LocationDesc:N', 'disability_rate:Q', 'cost_rate:Q'],
+    ).properties(
+        title = alt.TitleParams(
+            text = 'Disability status among adults 18 years of age or older in each state',
+            fontSize = 16,
+        ),
+    )
+
+    fig2_base = alt.Chart(cost_disability).encode(
+        x = alt.X('cost_rate:Q', axis=alt.Axis(title='Rate')),
+        y = alt.Y('LocationDesc:N', sort=alt.EncodingSortField(field='cost_rate', op='sum', order='descending')),
+    ).transform_filter(
+        alt.datum.cost_rate >= slider
+    )
+        
+    fig2 = fig2_base.mark_bar().encode(
+        opacity = op_condition,
+        tooltip=['LocationDesc:N', 'disability_rate:Q', 'cost_rate:Q'],
+    ).properties(
+        title = alt.TitleParams(
+            text = ['Could not see a doctor due to cost in the past 12 months', 'among adults 18 years of age or older'],
+            fontSize = 16,
+            anchor = 'middle',
+        ),
+    )
+
+    text = fig2.mark_text(baseline='middle', dx=20, color='darkred').encode(
+        text = alt.condition(viz_sel, alt.Text('cost_rate:Q', format='.1%'), alt.value(' ')),
+        opacity = alt.condition(viz_sel, alt.value(1.0), alt.value(0)),
+    )
+
+    viz1 = (fig1 & (fig2 + text)).add_selection(viz_sel).properties(
+        title = {
+            'text': 'Disability Rate and Expenditure in US in 2020', 
+            'fontSize': 20, 
+            'fontWeight': 'bold',
+        },
+    ).resolve_scale(x='shared')
+    return viz1
+
+
+# Visualization 2: interactive
+def viz2():
+    ## Layered bar chart
+    base_bar = alt.Chart(health_conditions).encode(
+        y = alt.Y('disability:N', title=None),
+    )
+
+    bars = base_bar.mark_bar().encode(
+        x = alt.X('value:Q'),
+        color = alt.Color('disability:N'),
+    )
+
+    confidence_interval = base_bar.mark_errorbar(extent='ci', color='darkred').encode(
+        x=alt.X('ci1:Q', title='Rate'),
+        x2='ci2:Q',
+    )
+
+    annotation = base_bar.mark_text(align='left', dx=10).encode(
+        x = alt.X('value:Q'),
+        text = alt.Text('value:Q', format='.1%')
+    )
+
+    viz2 = (bars + confidence_interval + annotation).facet(
+        row = alt.Row(
+            'disease:N', 
+            header=alt.Header(title='Health Conditions', labelOrient='top', titleFontSize=13),
+            sort = alt.EncodingSortField(field='value', op='max', order='descending')),
+    ).properties(
+        title = alt.TitleParams(
+            "Health Conditions among Adults w/o Disability in US in 2020",
+            fontSize = 20,
+            fontWeight = 'bold',
+        )
+    )
+    return viz2
+
+
+# Streamlit
 tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 
 with tab1:
@@ -159,7 +170,9 @@ with tab1:
         services, free of discriminatory barriers and bias."
         """
     )
+    viz2 = viz2()
     st.altair_chart(viz2, use_container_width=True)
+    
 
 with tab2:
     tab2.write(
@@ -173,4 +186,6 @@ with tab2:
         $1,000 out of pocket."
         """
     )
+    slider = st.sidebar.slider('Select Lower Bound of Cost Rate', 0.0, cost_rate_max, 0.01)
+    viz1 = viz1()
     st.altair_chart(viz1, use_container_width=True)
