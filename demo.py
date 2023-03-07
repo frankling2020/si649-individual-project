@@ -8,7 +8,7 @@ import streamlit as st
 @st.cache
 def load_data():
     states = alt.topo_feature(data.us_10m.url, 'states')
-    cost_disability = pd.read_csv('https://raw.githubusercontent.com/frankling2020/UMSI-Projects/main/cost_disability.csv')
+    cost_disability = pd.read_csv('cost_disability.csv')
     health_conditions = pd.read_csv('disease.csv')
     health_conditions['disability'] = health_conditions['disability'].map({1: "with", 0: "without"})
     return states, cost_disability, health_conditions
