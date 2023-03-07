@@ -158,6 +158,12 @@ def viz2():
 tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 
 with tab1:
+    tab1.markdown("""
+        *People with disabilities
+        get preventive care less frequently and have worse outcomes than their nondisabled
+        counterparts.*
+    
+    """)
     tab1.write(
         """
         Thee Department of Health and Human Services is aware of the issue. In a response to
