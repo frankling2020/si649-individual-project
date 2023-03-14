@@ -15,7 +15,7 @@ def load_data():
     
     ## Preprocessing
     ## State and ID mapping
-    cost_disability['cost_rank'] = cost_disability['cost_rate'].rank(ascending=False)
+    cost_disability['dis_rank'] = cost_disability['disability_rate'].rank(ascending=False)
     state_names = cost_disability['LocationDesc'].copy()
     state_ids = cost_disability['id'].copy()
     state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
@@ -32,22 +32,25 @@ states, cost_disability, health_conditions, state_names, state_ids, cost_rate_ma
 
 ## Sidebar
 st.sidebar.title('Health Conditions of Disability and Barriers of Health Care in US in 2020')
-st.sidebar.write(
-    """
-        One of the most basic things people with disabilities are asking for is respect. The
-    biggest finding of the 2021 survey, Iezzoni says, is that doctors don't realize that the
-    proper way to determine what accommodations a facility needs for patients with
-    disabilities is to just ask the patients.
-    "I can't tell you how many times I go to a doctor's office and I'm talking, but they're
-    not hearing anything,” Salentine says. "They're ready to speak over me.”
-    """
-)
 
 st.sidebar.image('font.jpeg',
     caption='''People with disabilities
-        get preventive care less frequently and have worse outcomes than their nondisabled
-        counterparts.''')
+        get preventive care less frequently and have worse outcomes than their non-disabled
+        counterparts. [1]''')
 
+st.sidebar.markdown(
+    """
+    People with disabilities are suffering many health problems while having less access to health care 
+    and worse treatment from doctors than their non-disabled counterparts. These visualizations show the health conditions of disability and
+    barriers of health care in US in 2020. As mentioned in the article,   
+
+    ## References
+    [1] Sohn, R. (2022, February 28). Large majority of doctors hold misconceptions about people with disabilities, survey finds. [STAT](https://www.statnews.com/2021/02/01/large-majority-of-doctors-hold-misconceptions-about-people-with-disabilities-survey-finds/).
+        
+    <a id="2"> [2]</a> Yasinski, E. (2022, December 15). Doctors Are Failing Patients With Disabilities. [The Atlantic](https://www.theatlantic.com/health/archive/2022/11/disability-health-care-accessibility-doctors-ada/672101/).
+    """,
+    unsafe_allow_html=True
+)
 
 
 # Visualization 1: interactive
@@ -64,12 +67,12 @@ def viz1(nearby_state):
         type = 'albersUsa',
     ).transform_lookup(
         lookup='id',
-        from_=alt.LookupData(cost_disability, 'id', ['LocationDesc', 'disability_rate', 'cost_rate', 'cost_rank'])
+        from_=alt.LookupData(cost_disability, 'id', ['LocationDesc', 'disability_rate', 'cost_rate', 'dis_rank'])
     )
 
     if agree:
-        select_state_rank = cost_disability['cost_rank'][cost_disability['id'] == state_selector].values[0] if agree else -1
-        slider_condition = abs(alt.datum.cost_rank - select_state_rank) <= nearby_state
+        select_state_rank = cost_disability['dis_rank'][cost_disability['id'] == state_selector].values[0] if agree else -1
+        slider_condition = abs(alt.datum.dis_rank - select_state_rank) <= nearby_state
     else:
         slider_condition =  alt.datum.cost_rate >= slider
     
@@ -149,7 +152,7 @@ def viz2():
     viz2 = (bars + confidence_interval + annotation).facet(
         column = alt.Column(
             'disease:N', 
-            header = alt.Header(title=None, labelOrient='top', titleFontSize=13),
+            header = alt.Header(title=None, labelOrient='top', titleFontSize=15),
             sort = alt.EncodingSortField(field='value', op='max', order='descending')),
         spacing = 30,
     ).properties(
@@ -166,36 +169,66 @@ def viz2():
 tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 
 with tab1:
+    tab1.markdown('### Uphold the Rights of People with Disabilities to Access Health Care')
+    tab1.write(
+    """
+    _The Department of Health and Human Services is aware of the issue. In a response to
+        emailed questions, an HHS spokesperson wrote, "While we recognize the progress of
+        the ADA, important work remains to uphold the rights of people with disabilities." [[2]](#2)_
+    """)
     tab1.write(
         """
-        Thee Department of Health and Human Services is aware of the issue. In a response to
-        emailed questions, an HHS spokesperson wrote, "While we recognize the progress of
-        the ADA, important work remains to uphold the rights of people with disabilities."
-        The Office of Civil Rights, the spokesperson continued, "has taken a number of
-        important actions to ensure that health care providers do not deny health care to
-        individuals on the basis of disability and to guarantee that people with disabilities
-        have full access to reasonable accommodations when receiving health care and human
-        services, free of discriminatory barriers and bias."
+        It is essential that healthcare providers recognize the unique healthcare needs of individuals with 
+        disabilities and work to ensure that they receive the same level of care and access to services as 
+        non-disabled individuals. The visualization demonstrates that individuals with disabilities are more likely 
+        to suffer from health issues than their non-disabled counterparts. While the ADA has made great strides,
+        people with disabilities, more prone to health problems, are still facing discriminatory barriers and bias.
         """
     )
+    tab1.write(
+    """
+    ------
+    _One of the most basic things people with disabilities are asking for is respect... 
+    "I can't tell you how many times I go to a doctor's office and I'm talking, but they're not hearing anything,” 
+    Salentine says. "They're ready to speak over me."* [[2]](#2)_
+    """)
+    tab1.write("------")
     viz2 = viz2()
     st.altair_chart(viz2, use_container_width=True)
     
 
 with tab2:
-    tab2.write(
-        """
-        Eventually, the patient's adult daughter told Lagu
+    tab2.markdown('### Barriers of Health Care')
+    tab2.write("""
+        As stated in the article, people with disabilities have lower incomes, and some individuals may
+        not call for an ambulance due to financial constraints. The slider allows users to select states
+        with a higher ratio of individuals facing expenditure issues. It aims to drawing attention to
+        regions such as the southern and southeastern parts of America where healthcare
+        expenditure is a significant issue for locals.
+    """)
+    tab2.write("""
+        ------
+        _Eventually, the patient's adult daughter told Lagu
         that she hadn't been able to find a specialist who would see a patient in a
         wheelchair. Incredulous, Lagu started making calls. "I could not find that
         kind of doctor within 100 miles of her house who would see her," she
         says, "unless she came in an ambulance and was transferred to an
         exam table by EMS—which would have cost her family more than
-        $1,000 out of pocket."
-        """
-    )
+        $1,000 out of pocket." [[2]](#2)_
+    """)
+    tab2.write("------")
+
+
     with st.expander("How to use this visualization?"):
-        st.write("Hi")
+        st.write('''
+        This visualization shows the relationship between disability rate and expenditure
+        in each state. There are two modes for this interactive visualizations. By default, the slider is enabled. 
+        You can switch the mode by the check box below.
+        
+        In the slider mode, you will see a lower bound of expenditure issue, which will help you find some geographical patterns. 
+        In the state selector mode, you will see the states that share similar disability rate, while they may not share similar expenditure issue.
+        It is time to reflect on the data!
+        ''')
         agree = st.checkbox('Disable slider to select state')
         
     if agree:
