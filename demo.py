@@ -51,7 +51,7 @@ st.sidebar.image('font.jpeg',
 
 
 # Visualization 1: interactive
-def viz1():
+def viz1(nearby_state):
     viz_sel = alt.selection_single(
         fields = ['id'], 
         empty = 'all',
@@ -69,7 +69,7 @@ def viz1():
 
     if agree:
         select_state_rank = cost_disability['cost_rank'][cost_disability['id'] == state_selector].values[0] if agree else -1
-        slider_condition = abs(alt.datum.cost_rank - select_state_rank) <= 3
+        slider_condition = abs(alt.datum.cost_rank - select_state_rank) <= nearby_state
     else:
         slider_condition =  alt.datum.cost_rate >= slider
     
@@ -197,11 +197,11 @@ with tab2:
     with st.expander("How to use this visualization?"):
         st.write("Hi")
         
-    agree = st.checkbox('Disable slider to select state')
+    agree = st.sidebar.checkbox('Disable slider to select state')
     if agree:
         state_selector = st.selectbox('Select State', state_ids, format_func=lambda x: state_names[state_ids.index(x)])
     else:
-        slider = tab2.slider('Select Lower Bound of Cost Rate', 
+        slider = tab2.slider('Select Lower Bound of Expenditure Issue', 
         cost_rate_min, cost_rate_max, (cost_rate_min + cost_rate_max)/2, 0.01)
-    viz1 = viz1()
+    viz1 = viz1(nearby_state=4)
     st.altair_chart(viz1, use_container_width=True)
