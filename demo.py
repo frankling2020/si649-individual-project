@@ -181,12 +181,6 @@ tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 with tab1:
     tab1.markdown('### Uphold the Rights of People with Disabilities to Access Health Care')
     tab1.write(
-    """
-    _The Department of Health and Human Services is aware of the issue. In a response to
-        emailed questions, an HHS spokesperson wrote, "While we recognize the progress of
-        the ADA, important work remains to uphold the rights of people with disabilities." [[2]](#2)_
-    """)
-    tab1.write(
         """
         It is essential that healthcare providers recognize the unique healthcare needs of individuals with 
         disabilities and work to ensure that they receive the same level of care and access to services as 
