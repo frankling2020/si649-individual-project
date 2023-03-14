@@ -196,7 +196,7 @@ with tab2:
     )
     with st.expander("How to use this visualization?"):
         st.write("Hi")
-        agree = st.sidebar.checkbox('Disable slider to select state')
+        agree = st.checkbox('Disable slider to select state')
         
     if agree:
         state_selector = st.selectbox('Select State', state_ids, format_func=lambda x: state_names[state_ids.index(x)])
