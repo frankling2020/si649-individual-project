@@ -61,8 +61,8 @@ def viz1():
     viz_sel = alt.selection_single(
         fields = ['id'], 
         empty = 'all',
-        on = 'mouseover',
-        clear = 'mouseout',
+        # on = 'mouseover',
+        # clear = 'mouseout',
         bind = state_selector,
     )
 
