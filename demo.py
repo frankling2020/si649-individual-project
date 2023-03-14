@@ -15,6 +15,7 @@ def load_data():
     
     ## Preprocessing
     ## State and ID mapping
+    cost_disability['cost_rank'] = cost_disability['cost_rate'].rank(ascending=False)
     state_names = cost_disability['LocationDesc'].copy()
     state_ids = cost_disability['id'].copy()
     state_ids = sorted(state_ids, key=lambda x: state_names[cost_disability['id'] == x].values[0])
@@ -51,19 +52,9 @@ st.sidebar.image('font.jpeg',
 
 # Visualization 1: interactive
 def viz1():
-    ## Select state
-    state_selector = alt.binding_select(
-        options = [None] + state_ids,
-        labels = ['All'] + state_names,
-        name = 'Select State'
-    )
-
     viz_sel = alt.selection_single(
         fields = ['id'], 
         empty = 'all',
-        on = 'click',
-        clear = 'dclick',
-        bind = state_selector,
     )
 
     ## Base map
@@ -73,12 +64,18 @@ def viz1():
         type = 'albersUsa',
     ).transform_lookup(
         lookup='id',
-        from_=alt.LookupData(cost_disability, 'id', ['LocationDesc', 'disability_rate', 'cost_rate'])
+        from_=alt.LookupData(cost_disability, 'id', ['LocationDesc', 'disability_rate', 'cost_rate', 'cost_rank'])
     )
 
+    if agree:
+        select_state_rank = cost_disability['cost_rank'][cost_disability['id'] == state_selector].values[0] if agree else -1
+        slider_condition = abs(alt.datum.cost_rank - select_state_rank) <= 3
+    else:
+        slider_condition =  alt.datum.cost_rate >= slider
+    
     op_condition = alt.condition(viz_sel, alt.value(1.0), alt.value(0.2))
     color_bins = alt.Color('disability_rate:Q', bin=alt.BinParams(maxbins=5), title='Disability Rate')
-    color_condition = alt.condition(alt.datum.cost_rate >= slider, color_bins, alt.value('lightgray'))
+    color_condition = alt.condition(slider_condition, color_bins, alt.value('lightgray'))
 
     ## Layered map
     fig1 = fig1_base.encode(
@@ -97,7 +94,7 @@ def viz1():
         y = alt.Y('LocationDesc:N', title=None,
             sort=alt.EncodingSortField(field='cost_rate', op='sum', order='descending')),
     ).transform_filter(
-        alt.datum.cost_rate >= slider
+        slider_condition
     )
         
     fig2 = fig2_base.mark_bar().encode(
@@ -197,7 +194,14 @@ with tab2:
         $1,000 out of pocket."
         """
     )
-    slider = tab2.slider('Select Lower Bound of Cost Rate', 
+    with st.expander("How to use this visualization?"):
+        st.write("Hi")
+        
+    agree = st.checkbox('Disable slider to select state')
+    if agree:
+        state_selector = st.selectbox('Select State', state_ids, format_func=lambda x: state_names[state_ids.index(x)])
+    else:
+        slider = tab2.slider('Select Lower Bound of Cost Rate', 
         cost_rate_min, cost_rate_max, (cost_rate_min + cost_rate_max)/2, 0.01)
     viz1 = viz1()
     st.altair_chart(viz1, use_container_width=True)
