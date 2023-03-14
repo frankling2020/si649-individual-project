@@ -1,3 +1,13 @@
+"""SI649 Individual Project
+unique name: hyfrankl
+Link: https://hyfrankl-si649-individual-project.streamlit.app/
+
+Usage: streamlit run demo.py
+Description: Interactive visualization of health conditions of disability and barriers of health care in US in 2020.
+Interaction: see the description of the expander in the "Barriers of Health Care" section.
+"""
+
+
 import altair as alt
 from vega_datasets import data
 import pandas as pd
