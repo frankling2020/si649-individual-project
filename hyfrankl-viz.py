@@ -182,9 +182,6 @@ def viz2():
 
 
 # Streamlit
-if "email" in st.experimental_user:
-    st.write(f"Hi, {st.experimental_user['email']}!")
-
 tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 
 with tab1:
