@@ -41,26 +41,32 @@ states, cost_disability, health_conditions, state_names, state_ids, cost_rate_ma
 
 
 ## Sidebar
-st.sidebar.title('Health Conditions of Disability and Barriers of Health Care in US in 2020')
+with st.sidebar:
+    st.title('Health Conditions of Disability and Barriers of Health Care in US in 2020')
 
-st.sidebar.image('font.jpeg',
+
+    st.markdown(
+        """
+        People with disabilities are suffering many health problems while having less access to health care 
+        and worse treatment from doctors than their non-disabled counterparts. These visualizations show the health conditions of disability and
+        barriers of health care in US in 2020. As mentioned in the article,
+        """,
+        unsafe_allow_html=True
+    )
+    
+    st.image('font.jpeg',
     caption='''People with disabilities
         get preventive care less frequently and have worse outcomes than their non-disabled
         counterparts. [1]''')
 
-st.sidebar.markdown(
-    """
-    People with disabilities are suffering many health problems while having less access to health care 
-    and worse treatment from doctors than their non-disabled counterparts. These visualizations show the health conditions of disability and
-    barriers of health care in US in 2020. As mentioned in the article,   
-
-    ## References
-    [1] Sohn, R. (2022, February 28). Large majority of doctors hold misconceptions about people with disabilities, survey finds. [STAT](https://www.statnews.com/2021/02/01/large-majority-of-doctors-hold-misconceptions-about-people-with-disabilities-survey-finds/).
-        
-    <a id="2"> [2]</a> Yasinski, E. (2022, December 15). Doctors Are Failing Patients With Disabilities. [The Atlantic](https://www.theatlantic.com/health/archive/2022/11/disability-health-care-accessibility-doctors-ada/672101/).
-    """,
-    unsafe_allow_html=True
-)
+    with st.expander("__Reference__"):
+        st.markdown("""
+            [1] Sohn, R. (2022, February 28). Large majority of doctors hold misconceptions about people with disabilities, survey finds. [STAT](https://www.statnews.com/2021/02/01/large-majority-of-doctors-hold-misconceptions-about-people-with-disabilities-survey-finds/).
+                
+            <a id="2"> [2]</a> Yasinski, E. (2022, December 15). Doctors Are Failing Patients With Disabilities. [The Atlantic](https://www.theatlantic.com/health/archive/2022/11/disability-health-care-accessibility-doctors-ada/672101/).
+            """,
+            unsafe_allow_html=True
+        )
 
 
 # Visualization 1: interactive
@@ -176,6 +182,9 @@ def viz2():
 
 
 # Streamlit
+if "email" in st.experimental_user:
+    st.write(f"Hi, {st.experimental_user['email']}!")
+
 tab1, tab2 = st.tabs(['Health Conditions', 'Barriers of Health Care'])
 
 with tab1:
