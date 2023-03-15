@@ -49,7 +49,7 @@ with st.sidebar:
         """
         People with disabilities are suffering many health problems while having less access to health care 
         and worse treatment from doctors than their non-disabled counterparts. These visualizations show the health conditions of disability and
-        barriers of health care in US in 2020. As mentioned in the article,
+        barriers of health care in US in 2020.
         """,
         unsafe_allow_html=True
     )
